@@ -1,0 +1,109 @@
+#importing dataset from kaggle
+
+DOWNLOAD_METHOD="kaggle"
+
+if DOWNLOAD_METHOD == "kaggle":
+  from google.colab import userdata
+  from os import environ
+
+  environ["KAGGLE_KEY"]      = userdata.get('KAGGLE_KEY')
+
+  ! pip -q install kaggle
+  ! kaggle datasets download -d amineipad/loan-approval-dataset
+  ! unzip /content/loan-approval-dataset.zip
+
+#reading the dataset
+
+import pandas as pd
+df = pd.read_csv("loanapproval.csv")
+
+#pre-processing
+
+#converting text labels into numbers
+from sklearn.preprocessing import LabelEncoder
+
+#dropping unpredictive and target data (applicant id/loand approved) and setting the target data (loan approved)
+features = df.drop(columns=['applicant_id', 'loan_approved'])
+target = df['loan_approved']
+
+#processing each feature column
+for column in features.columns:
+
+    #filling numeric blank cells with the median of the column
+    if pd.api.types.is_numeric_dtype(features[column].dtype):
+        if features[column].isnull().any():
+            features[column] = features[column].fillna(features[column].median())
+
+    #filling text blank cells with "unknown" and converting text descriptors to numbers
+    else:
+        if features[column].isnull().any():
+            features[column] = features[column].fillna("Unknown")
+        features[column] = LabelEncoder().fit_transform(features[column].astype(str))
+
+#pulling the table
+features
+
+#training the model
+
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+#splitting the dataset - 80% training, 20% testing
+X_train, X_test, y_train, y_test = train_test_split(
+    features, target, test_size=0.2, random_state=1
+)
+
+#using random forest classification
+model = RandomForestClassifier(random_state=1)
+
+model.fit(X_train, y_train)
+
+#predicting on the test set
+predictions = model.predict(X_test)
+
+accuracy = accuracy_score(y_test, predictions)
+
+print(f"Accuracy: {accuracy:.2%}")
+print("\nDetailed Accuracy Stats:")
+print(classification_report(y_test, predictions))
+
+#optimization using grid search
+
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+
+rf = RandomForestClassifier(random_state=42)
+
+#trying different tree sizes, depths, and sample splits
+parameters = {
+    'n_estimators': [50, 100, 150],
+    'max_depth': [None, 5, 10],
+    'min_samples_split': [2, 4, 8, 16]
+}
+
+#searching for the best model, also using cross validation
+grid_search = GridSearchCV(estimator=rf, param_grid=parameters, cv=5, scoring='accuracy', n_jobs=-1)
+
+grid_search.fit(features, target)
+
+#testing on hypothetical applicant
+
+model = grid_search.best_estimator_
+
+new_applicant = [[32, 1, 0, 95000, 15000, 780, 1, 0, 1]]
+
+#predicting
+prediction = model.predict(new_applicant)
+probabilities = model.predict_proba(new_applicant)
+
+#pulling specific probabilities
+prob_denied = probabilities[0][0]
+prob_approved = probabilities[0][1]
+
+if prediction[0] == 1:
+    print("Loan Approved")
+    print(prob_approved)
+else:
+    print("Loan Denied")
+    print(prob_denied)
