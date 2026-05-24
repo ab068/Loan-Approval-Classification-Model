@@ -19,7 +19,7 @@ df = pd.read_csv("loanapproval.csv")
 #converting text labels into numbers
 from sklearn.preprocessing import LabelEncoder
 
-#dropping unpredictive and target data (applicant id/loand approved) and setting the target data (loan approved)
+#dropping unpredictive and target data (applicant id/loan approved) and setting the target data (loan approved)
 features = df.drop(columns=['applicant_id', 'loan_approved'])
 target = df['loan_approved']
 
