@@ -3,7 +3,7 @@
 from google.colab import userdata
 from os import environ
 
-environ["KAGGLE_KEY"]      = userdata.get('KAGGLE_KEY')
+environ["KAGGLE_KEY"] = userdata.get('KAGGLE_KEY')
 
 ! pip -q install kaggle
 ! kaggle datasets download -d amineipad/loan-approval-dataset
