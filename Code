@@ -75,7 +75,7 @@ rf = RandomForestClassifier(random_state=1)
 #trying different tree sizes, depths, and sample splits
 parameters = {
     'n_estimators': [50, 100, 150],
-    'max_depth': [None, 5, 10],
+    'max_depth': [2, 5, 10],
     'min_samples_split': [2, 4, 8, 16]
 }
 
