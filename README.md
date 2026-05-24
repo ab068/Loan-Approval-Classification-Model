@@ -1,5 +1,5 @@
 # Loan-Approval-Classification-Model
-A machine learning model using classification to determine loan approval eligibility using Random Forest classification.
+A machine learning model using Random Forest classification to determine loan approval eligibility.
 ---
 
 # How to Run
