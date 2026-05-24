@@ -1,8 +1,6 @@
 #importing dataset from kaggle
 
-DOWNLOAD_METHOD="kaggle"
 
-if DOWNLOAD_METHOD == "kaggle":
   from google.colab import userdata
   from os import environ
 
